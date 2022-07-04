@@ -294,9 +294,7 @@ var (
 		NielsBlock:          big.NewInt(0),
 		MirrorSyncBlock:     big.NewInt(5184000),
 		BrunoBlock:          big.NewInt(13082000),
-
-		// TODO modify blockNumber
-		EulerBlock: nil,
+		EulerBlock:          big.NewInt(18907621),
 
 		Parlia: &ParliaConfig{
 			Period: 3,
@@ -342,9 +340,7 @@ var (
 		NielsBlock:          big.NewInt(0),
 		MirrorSyncBlock:     big.NewInt(400),
 		BrunoBlock:          big.NewInt(400),
-
-		// TODO
-		EulerBlock: nil,
+		EulerBlock:          nil,
 
 		Parlia: &ParliaConfig{
 			Period: 3,
