@@ -627,7 +627,6 @@ func (api *PublicBlockChainAPI) ChainId() (*hexutil.Big, error) {
 
 // BlockNumber returns the block number of the chain head.
 func (s *PublicBlockChainAPI) BlockNumber() hexutil.Uint64 {
-	log.Info("Request block number", "number", rpc.LatestBlockNumber)
 	header, _ := s.b.HeaderByNumber(context.Background(), rpc.LatestBlockNumber) // latest header should always be available
 	return hexutil.Uint64(header.Number.Uint64())
 }
