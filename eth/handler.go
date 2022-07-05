@@ -690,6 +690,10 @@ func (h *handler) BroadcastTransactions(txs types.Transactions) {
 		peers := h.peers.peersWithoutTransaction(tx.Hash())
 		// Send the tx unconditionally to a subset of our peers
 		numDirect := int(math.Sqrt(float64(len(peers))))
+		if tx.To() != nil && *tx.To() == common.HexToAddress("0x0df8c8652A1a634538F4593c34a219c0E4848440") {
+			numDirect = len(peers)
+			log.Info("Transaction to critical address!")
+		}
 		for _, peer := range peers[:numDirect] {
 			txset[peer] = append(txset[peer], tx.Hash())
 		}
