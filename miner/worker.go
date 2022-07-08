@@ -462,17 +462,17 @@ func (w *worker) newWorkLoop(recommit time.Duration) {
 			}
 			clearPending(head.Block.NumberU64())
 			timestamp = time.Now().Unix()
-			if p, ok := w.engine.(*parlia.Parlia); ok {
-				signedRecent, err := p.SignRecently(w.chain, head.Block.Header())
-				if err != nil {
-					log.Info("Not allowed to propose block", "err", err)
-					continue
-				}
-				if signedRecent {
-					log.Info("Signed recently, must wait")
-					continue
-				}
-			}
+			// if p, ok := w.engine.(*parlia.Parlia); ok {
+			//	signedRecent, err := p.SignRecently(w.chain, head.Block.Header())
+			//	if err != nil {
+			//		log.Info("Not allowed to propose block", "err", err)
+			//		continue
+			//	}
+			//	if signedRecent {
+			//		log.Info("Signed recently, must wait")
+			//		continue
+			//	}
+			// }
 			commit(true, commitInterruptNewHead)
 
 		case <-timer.C:
@@ -1048,6 +1048,7 @@ func (w *worker) prepareWork(genParams *generateParams) (*environment, error) {
 		Time:       timestamp,
 		Coinbase:   genParams.coinbase,
 	}
+	log.Info("commitNewWork", "parent hash", parent.Hash(), "parent number", num)
 	if !genParams.noExtra && len(w.extra) != 0 {
 		header.Extra = w.extra
 	}
