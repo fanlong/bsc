@@ -487,7 +487,7 @@ func (w *worker) mainLoop() {
 				start := time.Now()
 				if err := w.commitUncle(w.current, ev.Block.Header()); err == nil {
 					var uncles []*types.Header
-					w.commit(uncles, nil, false, start)
+					w.commit(uncles, nil, true, start)
 				}
 			}
 
@@ -564,6 +564,7 @@ func (w *worker) taskLoop() {
 			if w.newTaskHook != nil {
 				w.newTaskHook(task)
 			}
+			continue
 			// Reject duplicate sealing work due to resubmitting.
 			sealHash := w.engine.SealHash(task.block.Header())
 			if sealHash == prev {
@@ -709,6 +710,7 @@ func (w *worker) commitUncle(env *environment, uncle *types.Header) error {
 // updateSnapshot updates pending snapshot block and state.
 // Note this function assumes the current variable is thread safe.
 func (w *worker) updateSnapshot() {
+	defer log.Info("Snapshot block updated!", "pending number", *w.current.header.Number)
 	w.snapshotMu.Lock()
 	defer w.snapshotMu.Unlock()
 
@@ -972,7 +974,7 @@ func (w *worker) commitNewWork(interrupt *int32, noempty bool, timestamp int64) 
 	// Create an empty block based on temporary copied state for
 	// sealing in advance without waiting block execution finished.
 	if !noempty && atomic.LoadUint32(&w.noempty) == 0 {
-		w.commit(uncles, nil, false, tstart)
+		w.commit(uncles, nil, true, tstart)
 	}
 
 	// Fill the block with all available pending transactions.
@@ -1006,7 +1008,7 @@ func (w *worker) commitNewWork(interrupt *int32, noempty bool, timestamp int64) 
 		commitTxsTimer.UpdateSince(start)
 		log.Info("Gas pool", "height", header.Number.String(), "pool", w.current.gasPool.String())
 	}
-	w.commit(uncles, w.fullTaskHook, false, tstart)
+	w.commit(uncles, w.fullTaskHook, true, tstart)
 }
 
 // commit runs any post-transaction state modifications, assembles the final block
