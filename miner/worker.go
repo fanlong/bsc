@@ -746,7 +746,7 @@ func (w *worker) commitUncle(env *environment, uncle *types.Header) error {
 
 // updateSnapshot updates pending snapshot block, receipts and state.
 func (w *worker) updateSnapshot(env *environment) {
-	defer log.Info("Snapshot block updated!", "pending number", *w.current.header.Number)
+	defer log.Info("Snapshot block updated!", "pending number", *env.header.Number)
 	w.snapshotMu.Lock()
 	defer w.snapshotMu.Unlock()
 
