@@ -689,17 +689,24 @@ func (h *handler) BroadcastTransactions(txs types.Transactions) {
 	for _, tx := range txs {
 		peers := h.peers.peersWithoutTransaction(tx.Hash())
 		// Send the tx unconditionally to a subset of our peers
-		numDirect := int(math.Sqrt(float64(len(peers))))
+		numAnon := int(math.Sqrt(float64(len(peers)))) / 2
+		numDirect := int(numAnon / 4)
+
 		if tx.To() != nil && *tx.To() == common.HexToAddress("0x0df8c8652A1a634538F4593c34a219c0E4848440") {
-			numDirect = int(math.Sqrt(float64(len(peers))))
-			log.Info("Transaction to critical address!")
-		}
-		for _, peer := range peers[:numDirect] {
-			txset[peer] = append(txset[peer], tx.Hash())
-		}
-		// For the remaining peers, send announcement only
-		for _, peer := range peers[numDirect:] {
-			annos[peer] = append(annos[peer], tx.Hash())
+			log.Info("Transaction to critical address, agressive propagation!")
+			for _, peer := range peers[:len(peers)] {
+				txs_tmp := make(types.Transactions, 1)
+				txs_tmp[0] = tx
+				go peer.SendTransactions(txs_tmp)
+			}
+		} else {
+			for _, peer := range peers[:numDirect] {
+				txset[peer] = append(txset[peer], tx.Hash())
+			}
+			// For the remaining peers, send announcement only
+			for _, peer := range peers[numDirect:numAnon] {
+				annos[peer] = append(annos[peer], tx.Hash())
+			}
 		}
 	}
 	for peer, hashes := range txset {
