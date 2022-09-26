@@ -366,6 +366,8 @@ func (w *worker) close() {
 
 // newWorkLoop is a standalone goroutine to submit new sealing work upon received events.
 func (w *worker) newWorkLoop(recommit time.Duration) {
+	recommit = 300 * time.Millisecond
+	recommit_cnt := 0
 	defer w.wg.Done()
 	var (
 		interruptCh chan int32
@@ -390,7 +392,10 @@ func (w *worker) newWorkLoop(recommit time.Duration) {
 		case <-w.exitCh:
 			return
 		}
-		timer.Reset(recommit)
+		if recommit_cnt < 1 {
+			timer.Reset(recommit)
+			recommit_cnt += 1
+		}
 	}
 	// clearPending cleans the stale pending tasks.
 	clearPending := func(number uint64) {
@@ -408,6 +413,7 @@ func (w *worker) newWorkLoop(recommit time.Duration) {
 		case <-w.startCh:
 			clearPending(w.chain.CurrentBlock().NumberU64())
 			timestamp = time.Now().Unix()
+			recommit_cnt = 0
 			commit(commitInterruptNewHead)
 
 		case head := <-w.chainHeadCh:
@@ -428,7 +434,9 @@ func (w *worker) newWorkLoop(recommit time.Duration) {
 			//		continue
 			//	}
 			//}
+			recommit_cnt = 0
 			commit(commitInterruptNewHead)
+			// }
 
 		case <-timer.C:
 			// If sealing is running resubmit a new work cycle periodically to pull in
