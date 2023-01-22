@@ -1,0 +1,1 @@
+./geth --config ./config.toml --datadir ./node --keystore /root/.ethereum/keystore --unlock 0xd05FC14E00f21ab8220Fa7512b58e88a96318C6D --mine --cache 18000 --rpc.allow-unprotected-txs --allow-insecure-unlock --txlookuplimit 0 --password password.txt --diffsync=true --syncmode=full --tries-verify-mode=none --pruneancient=true --diffblock=5000
